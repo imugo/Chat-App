@@ -1,0 +1,143 @@
+<style>
+.hidden {
+	display: none;	
+}
+.navbar-fixed {
+	position: absolute !important;
+	top: 0;	
+	left: 0px;
+}
+.my-avatar {
+    font-style: normal !important;
+}
+</style>
+
+<div class="container">
+	<div class="row">
+    	<div class="col s12 l8 offset-l2 m8 offset-m2">
+        	<div id="customNav">
+                <nav class="light-blue darken-3">
+                    <div class="nav-wrapper">
+                        <a class="brand-logo center white-text">Chat App</a>
+                        <ul class="left" id="nav-mobile">
+                            <li><a class="dropdown-button white-text transparent" data-activates="drop_online"><i class="fa fa-navicon"></i></a></li>
+                            <li>{{chat.online.count}} online</li>
+                        </ul>
+                         <ul id="drop_online" class="dropdown-content">
+                            <li><a>{{chat.online.count}} online</a></li>
+                            <li class="divider"></li>
+                            <li ng-repeat="user in chat.online.users"><a><i class="fa fa-user"></i>{{user.name}}</a></li>
+                            <li class="divider" ng-show="chat.logoutBtn"></li>
+                            <li ng-show="chat.logoutBtn"><a ng-click="logout()"><i class="fa fa-user-times"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+            <br>
+
+            <div ng-show="chatsCount()">
+                <p class="center">No chats to show.</p>
+            </div>
+
+             <div ng-hide="chat.oneMonthAgo.length == 0">
+             <button ng-show="hasMoreItemsToShow()" ng-click="showMoreItems()" class="btn-flat small pink white-text">Load More</button>
+                <p class="text-color center">More than a month ago <i class="fa fa-arrow-down"></i></p>
+                <ul class="collection">
+                    <li class="collection-item avatar" ng-repeat="item in chat.oneMonthAgo | orderBy:'ts' | limitTo: paginationLimit()">
+                        <i class="circle my-avatar grey lighten-3 black-text white-text">{{item.author.charAt(0) | uppercase}}</i>
+                        <span class="title emphasis">{{item.author}}</span>
+                        <p>
+                            {{item.text}}
+                        </p>
+                        <a href="#!" class="secondary-content grey-text">{{item.ts | myDateFormat}}</a>
+                    </li>
+                </ul>
+            </div>
+
+             <div ng-hide="chat.oneWeekAgo.length == 0">
+                <p class="text-color center">More than a week ago <i class="fa fa-arrow-down"></i></p>
+                <ul class="collection">
+                    <li class="collection-item avatar" ng-repeat="item in chat.oneWeekAgo | orderBy:'date'">
+                        <i class="circle my-avatar grey lighten-3 black-text white-text">{{item.author.charAt(0) | uppercase}}</i>
+                        <span class="title emphasis">{{item.author}}</span>
+                        <p>
+                            {{item.text}}
+                        </p>
+                        <a href="#!" class="secondary-content grey-text">{{item.ts | myDateFormat}}</a>
+                    </li>
+                </ul>
+            </div>
+
+             <div ng-hide="chat.twoDaysAgo.length == 0">
+                <p class="text-color center">A couple of days ago <i class="fa fa-arrow-down"></i></p>
+                <ul class="collection">
+                    <li class="collection-item avatar" ng-repeat="item in chat.twoDaysAgo | orderBy:'date'">
+                        <i class="circle my-avatar grey lighten-3 black-text white-text">{{item.author.charAt(0) | uppercase}}</i>
+                        <span class="title emphasis">{{item.author}}</span>
+                        <p>
+                            {{item.text}}
+                        </p>
+                        <a href="#!" class="secondary-content grey-text">{{item.ts | myDateFormat}}</a>
+                    </li>
+                </ul>
+            </div>
+
+             <div ng-hide="chat.yesterday.length == 0">
+                <p class="text-color center">Yesterday <i class="fa fa-arrow-down"></i></p>
+                <ul class="collection">
+                    <li class="collection-item avatar" ng-repeat="item in chat.yesterday | orderBy:'date'">
+                        <i class="circle my-avatar grey lighten-3 black-text white-text">{{item.author.charAt(0) | uppercase}}</i>
+                        <span class="title emphasis">{{item.author}}</span>
+                        <p>
+                            {{item.text}}
+                        </p>
+                        <a href="#!" class="secondary-content grey-text">{{item.ts | myDateFormat}}</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div ng-hide="chat.today.length == 0">
+                <p class="text-color center">Today <i class="fa fa-arrow-down"></i></p>
+                <ul class="collection">
+                    <li class="collection-item avatar" ng-repeat="item in chat.today | orderBy:'id'">
+                        <i class="circle my-avatar light-blue darken-3 white-text">{{item.author.charAt(0) | uppercase}}</i>
+                        <span class="title text-color">{{item.author}}</span>
+                        <p class="text-color">
+                            {{item.text}}
+                        </p>
+                        <a href="#!" class="secondary-content grey-text">{{item.ts | myTimeFormat}}</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-panel red z-depth-0 lighten-3 black-text" ng-show="chat.error.status">
+                <span class="fa fa-close right" ng-click="closeErrorBox()"></span>
+             <p><i class="fa fa-warning"></i> {{chat.error.msg}}</p>
+            </div>
+
+            <form name="chatForm" ng-show="chat.chatForm" novalidate>
+            	<div class="row">
+                	<div class="input-field col s12">
+                    	<i class="fa fa-user-circle prefix emphasis"></i><input type="text" maxlength="16" ng-model="form.name" class="validate" id="name" required>
+                        <label for="name" data-error="wrong">Nickname</label>
+                    </div>
+               </div>
+               <p class="center">
+                   <button type="button" ng-disabled="chatForm.$invalid" ng-click="submitUser(form.name)" class="btn-large waves-effect waves-light pink white-text center">Join</button>
+               </p>
+            </form>
+
+            <form name="msgForm" id="msgForm" ng-show="chat.msgForm" novalidate>
+            	<div class="row">
+                	<div class="input-field col s12">
+                    	<i class="fa fa-pencil prefix emphasis"></i><input type="text" ng-model="msg" class="validate" id="msg" required autofocus>
+                    </div>
+               </div>
+               <p class="center">
+                   <button ng-disabled="msgForm.$invalid" ng-click="submitMsg(msg)" class="btn-large waves-effect waves-light pink white-text center">Send <i class="fa fa-send"></i></button>
+               </p>
+            </form>
+        </div>
+    </div>  
+</div>
+
